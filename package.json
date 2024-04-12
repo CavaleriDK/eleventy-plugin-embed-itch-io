@@ -14,10 +14,11 @@
     "url": "git+https://github.com/CavaleriDK/eleventy-plugin-embed-itch-io.git"
   },
   "keywords": [
-    "template",
-    "boilerplate",
-    "typescript",
-    "module"
+    "11ty",
+    "eleventy",
+    "eleventy-plugin",
+    "itchio",
+    "itch.io"
   ],
   "author": "Michael Cavaleri",
   "license": "MIT",
