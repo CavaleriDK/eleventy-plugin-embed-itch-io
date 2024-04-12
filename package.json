@@ -1,0 +1,44 @@
+{
+  "name": "eleventy-plugin-embed-itch-io",
+  "version": "0.0.0",
+  "description": "11ty plugin for embedding Itch.io games in Markdown files from the game page url.",
+  "main": "src/index.js",
+  "scripts": {
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --fix --ext .js",
+    "test": "jest --config jest.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CavaleriDK/eleventy-plugin-embed-itch-io.git"
+  },
+  "keywords": [
+    "template",
+    "boilerplate",
+    "typescript",
+    "module"
+  ],
+  "author": "Michael Cavaleri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CavaleriDK/eleventy-plugin-embed-itch-io/issues"
+  },
+  "homepage": "https://github.com/CavaleriDK/eleventy-plugin-embed-itch-io/#readme",
+  "devDependencies": {
+    "eslint": "8.56.0",
+    "eslint-plugin-jest": "27.9.0",
+    "jest": "29.7.0",
+    "prettier": "3.2.5"
+  },
+  "files": [
+    "src/index.js",
+    "src/libs/**/*"
+  ],
+  "dependencies": {
+    "@11ty/eleventy-fetch": "^4.0.1",
+    "deepmerge": "^4.3.1",
+    "node-html-parser": "^6.1.13",
+    "string-replace-async": "^2.0.0"
+  }
+}

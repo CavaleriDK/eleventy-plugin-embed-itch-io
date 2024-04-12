@@ -1,0 +1,16 @@
+{
+  "root": true,
+  "plugins": [ "jest"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended"
+  ],
+  "env": {
+      "es2020": true
+  },
+  "globals": {
+    "require": true,
+    "module": true,
+    "console": true
+  }
+}
