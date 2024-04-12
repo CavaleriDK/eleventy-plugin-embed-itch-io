@@ -3,7 +3,7 @@
 
 # Getting started
 
-![NPM Version](https://img.shields.io/npm/v/eleventy-plugin-embed-itch-io) ![Node LTS](https://img.shields.io/node/v-lts/eleventy-plugin-embed-itch-io) ![NPM License](https://img.shields.io/npm/l/eleventy-plugin-embed-itch-io)
+![NPM Version](https://img.shields.io/npm/v/eleventy-plugin-embed-itch-io) ![NPM License](https://img.shields.io/npm/l/eleventy-plugin-embed-itch-io)
 
 This is a plugin for [Eleventy](https://www.11ty.dev/) which automatically creates an [Itch.io embed widget](https://itch.io/docs/creators/widget) from a URL to a game's page.
 
@@ -75,7 +75,8 @@ The plugin can be used on other formats that markdown and will replace any insta
 
 ### Additional notes
 
-- The plugin will require an active internet connection to embed the widget. This is due to the fact that it will query the game page to obtain the unique game ID, which in turn is used to generate the html for the embedded widget. If there is no internet access, or the plugin fails in any other way, it will return the original content without any alternations while logging the relevant error in console.
+- The plugin will require an active internet connection to embed the widget. This is due to the fact that it will query the game page to obtain the unique game ID, which in turn is used to generate the html for the embedded widget.
+- If there is no internet access, or the plugin fails in any other way, it will return the original content without any alternations while logging the relevant error in console.
 - This plugin is deliberately designed _only_ to embed widgets when the URL is on its own line, and not inline with other text.
 - To do this, it uses a regular expression to recognize Itch.io game URLs. Currently these are the limitations on what it can recognize in a HTML output:
   - The URL *must* be wrapped in a paragraph tag: `<p>`
