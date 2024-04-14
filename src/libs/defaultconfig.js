@@ -6,4 +6,6 @@ module.exports = {
     containerStyle: 'position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;',
     cacheDuration: '1w',
     darkMode: false,
+    useTransform: false,
+    useShortcode: true,
 };

@@ -1,16 +1,7 @@
 const downloadAndCache = require('@11ty/eleventy-fetch');
 const { parse } = require('node-html-parser');
 
-module.exports = async (match, config) => {
-    let fullMatch, url;
-    [
-        fullMatch, // Full match
-        ,
-        ,
-        url, // Itch.io URL without protocol
-    ] = match;
-
-    const itchUrl = `https://${url}`;
+module.exports = async (itchUrl, fullMatch, config) => {
     try {
         const htmlResponse = await downloadAndCache(itchUrl, {
             duration: config.cacheDuration,

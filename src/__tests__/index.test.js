@@ -3,6 +3,7 @@ const asyncReplace = require('string-replace-async');
 const embed = require('../libs/embed');
 const defaultconfig = require('../libs/defaultconfig');
 const pattern = require('../libs/searchpattern');
+const parser = require('../libs/parseregex');
 
 /*
  *  Make sure we reset the regex index on every test.
@@ -15,17 +16,17 @@ beforeEach(() => {
  *  Forbidden unit tests making real requests to the itch.io server.
  */
 describe('Embedding itch.io page test', () => {
-    const testContent = '<p>https://cavaleri.itch.io/getting-around-it</p>';
+    const testContent = 'https://cavaleri.itch.io/getting-around-it';
 
     test('Embed with default configuration', async () => {
-        await expect(embed(pattern.exec(testContent), defaultconfig)).resolves.toBe(
+        await expect(embed(testContent, '', defaultconfig)).resolves.toBe(
             '<div class="itch-io-container" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="itch-io-responsive-iframe" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
     });
 
     test('Embed override iframeClass', async () => {
         await expect(
-            embed(pattern.exec(testContent), deepmerge(defaultconfig, { iframeClass: 'overridden-class' })),
+            embed(testContent, '', deepmerge(defaultconfig, { iframeClass: 'overridden-class' })),
         ).resolves.toBe(
             '<div class="itch-io-container" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="overridden-class" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
@@ -33,7 +34,7 @@ describe('Embedding itch.io page test', () => {
 
     test('Embed override iframeStyle', async () => {
         await expect(
-            embed(pattern.exec(testContent), deepmerge(defaultconfig, { iframeStyle: 'overridden-style' })),
+            embed(testContent, '', deepmerge(defaultconfig, { iframeStyle: 'overridden-style' })),
         ).resolves.toBe(
             '<div class="itch-io-container" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="itch-io-responsive-iframe" style="overridden-style" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
@@ -41,7 +42,7 @@ describe('Embedding itch.io page test', () => {
 
     test('Embed override containerClass', async () => {
         await expect(
-            embed(pattern.exec(testContent), deepmerge(defaultconfig, { containerClass: 'overridden-class' })),
+            embed(testContent, '', deepmerge(defaultconfig, { containerClass: 'overridden-class' })),
         ).resolves.toBe(
             '<div class="overridden-class" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="itch-io-responsive-iframe" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
@@ -49,29 +50,54 @@ describe('Embedding itch.io page test', () => {
 
     test('Embed override containerStyle', async () => {
         await expect(
-            embed(pattern.exec(testContent), deepmerge(defaultconfig, { containerStyle: 'overridden-style' })),
+            embed(testContent, '', deepmerge(defaultconfig, { containerStyle: 'overridden-style' })),
         ).resolves.toBe(
             '<div class="itch-io-container" style="overridden-style"><iframe class="itch-io-responsive-iframe" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
     });
 
     test('Embed override darkMode', async () => {
-        await expect(embed(pattern.exec(testContent), deepmerge(defaultconfig, { darkMode: true }))).resolves.toBe(
+        await expect(embed(testContent, '', deepmerge(defaultconfig, { darkMode: true }))).resolves.toBe(
             '<div class="itch-io-container" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="itch-io-responsive-iframe" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885?dark=true"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
         );
     });
 
-    test('Embed return original content when unable to get game details', async () => {
-        const failingContent = '<p>https://cavaleri.itch.io/game-that-never-existed</p>';
+    test('Embed return empty when unable to get game details', async () => {
+        const failingContent = 'https://cavaleri.itch.io/game-that-never-existed';
         await expect(
-            embed(pattern.exec(failingContent), deepmerge(defaultconfig, { containerStyle: 'overridden-style' })),
-        ).resolves.toBe(failingContent);
+            embed(failingContent, '', deepmerge(defaultconfig, { containerStyle: 'overridden-style' })),
+        ).resolves.toBe('');
     });
 
-    test('Embed can replace multiple links', async () => {
-        const duplicatedContent = `${testContent}${testContent}`;
+    test('Embed using transform can replace content', async () => {
+        const duplicatedContent = `<p>${testContent}</p>`;
+
         const embedded = await asyncReplace(duplicatedContent, pattern, async (...match) => {
-            return await embed(match, defaultconfig);
+            const parsed = parser(match);
+            return await embed(parsed.itchUrl, parsed.fullMatch, defaultconfig);
+        });
+
+        expect(embedded).toBe(
+            '<div class="itch-io-container" style="position: relative; aspect-ratio: 552 / 167; width:100%; max-height: 175px;"><iframe class="itch-io-responsive-iframe" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; max-height: 175px;" frameborder="0" src="https://itch.io/embed/1167885"><a href="https://cavaleri.itch.io/getting-around-it">Getting Around It by Michael Cavaleri</a></iframe></div>',
+        );
+    });
+
+    test('Embed using transform returns original content when unable to get game details', async () => {
+        const failingContent = '<p>https://cavaleri.itch.io/game-that-never-existed</p>';
+        const embedded = await asyncReplace(failingContent, pattern, async (...match) => {
+            const parsed = parser(match);
+            return await embed(parsed.itchUrl, parsed.fullMatch, defaultconfig);
+        });
+
+        expect(embedded).toBe(failingContent);
+    });
+
+    test('Embed using transform can replace multiple links', async () => {
+        const duplicatedContent = `<p>${testContent}</p><p>${testContent}</p>`;
+
+        const embedded = await asyncReplace(duplicatedContent, pattern, async (...match) => {
+            const parsed = parser(match);
+            return await embed(parsed.itchUrl, parsed.fullMatch, defaultconfig);
         });
 
         expect(embedded).toBe(
