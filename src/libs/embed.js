@@ -17,7 +17,7 @@ module.exports = async (itchUrl, fullMatch, config) => {
             const iframeSrcPostfix = config.darkMode ? `?dark=true` : ``;
 
             const aTag = `<a href="${itchUrl}">${title}</a>`;
-            const iframeTag = `<iframe class="${config.iframeClass}" style="${config.iframeStyle}" frameborder="0" src="https://itch.io/embed/${gameId}${iframeSrcPostfix}">${aTag}</iframe>`;
+            const iframeTag = `<iframe title="${title}" class="${config.iframeClass}" style="${config.iframeStyle}" frameborder="0" src="https://itch.io/embed/${gameId}${iframeSrcPostfix}">${aTag}</iframe>`;
             const divTag = `<div class="${config.containerClass}" style="${config.containerStyle}">${iframeTag}</div>`;
 
             return divTag;
